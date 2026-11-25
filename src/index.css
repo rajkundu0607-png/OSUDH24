@@ -137,3 +137,38 @@ header .logo,.footer-brand>img{transition:transform .48s cubic-bezier(.22,1,.36,
 @media(max-width:800px){.navigation>button:nth-child(3),.navigation>button:nth-child(5){display:flex}.navigation:not(.open)>button:nth-child(3),.navigation:not(.open)>button:nth-child(4){display:none}}
 @media(max-width:540px){.commerce .profile-fields{grid-template-columns:1fr}.commerce .profile-fields label:nth-child(4){grid-column:auto}.header-main{gap:9px}.account{padding:0}.account>svg{width:18px}.navigation{gap:17px}.navigation>button{font-size:9px}}
 .doctors-modal{width:min(760px,100%)}.doctor-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.doctor-card{padding:20px;border:1px solid var(--border);border-radius:12px}.doctor-avatar{display:flex;align-items:center;gap:10px;color:var(--blue);margin-bottom:14px}.doctor-avatar>svg{background:#edf4ff;padding:10px;width:46px;height:46px;border-radius:50%}.doctor-avatar span{font-size:12px;font-weight:600}.doctor-specialty{font-size:10px;color:var(--green)}.doctor-card h3{margin:8px 0;font-size:16px}.doctor-card p,.doctor-bio{font-size:11px;color:#7b889c;line-height:1.8}.doctor-bio{margin:7px 0 17px}.doctor-bio small{display:block;margin-top:10px}.doctor-fee{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border);padding-top:15px;font-size:12px}.doctor-fee span{display:flex;align-items:center;gap:6px;font-size:10px;color:#7c8da0}.doctors select{padding:13px;border:1px solid #d8e2ef;border-radius:6px;background:white;font:inherit;color:inherit;width:100%}.appointment-slots{border:0;padding:5px 0;display:flex;flex-wrap:wrap;gap:10px}.appointment-slots legend{font-size:11px;color:#536983;margin-bottom:10px}.appointment-slots button{border:1px solid #d8e2ef;padding:11px 14px;border-radius:6px;font-size:11px}.appointment-slots button[aria-pressed=true]{border-color:var(--blue);color:var(--blue);font-weight:700}.slot-note{font-size:10px;color:#7c8da0}.appointment-entry>div{display:flex;justify-content:space-between;gap:15px;font-size:12px}.booked-status,.cancelled-status{font-size:9px;color:var(--green)}.cancelled-status{color:#a85c5c}@media(max-width:540px){.doctor-grid{grid-template-columns:1fr}.doctor-card{padding:17px}}
+
+/* Shared async form and connection states. */
+button:disabled{cursor:wait;opacity:.55}
+.connection-status{padding-top:18px;padding-bottom:18px;font-size:13px;color:var(--blue)}
+.connection-status button{margin-left:10px;text-decoration:underline;font-weight:600}
+.commerce fieldset{min-width:0;border:0;padding:0;margin:0}
+.commerce .form-fields{display:flex;flex-direction:column;gap:16px}
+.commerce fieldset.profile-fields{display:grid;gap:16px}
+.commerce .appointment-slots{display:flex;flex-wrap:wrap;gap:10px;padding:5px 0}
+.commerce [role=alert]{color:#a33434}
+.prescription-entry{display:flex;flex-direction:column;gap:10px;font-size:12px}
+.prescription-entry a{color:var(--blue);text-decoration:underline;overflow-wrap:anywhere}
+
+.history-order summary>span{min-width:0;overflow-wrap:anywhere}.confirmation h3{overflow-wrap:anywhere}
+
+/* Account authentication. */
+.auth-panel>h2{margin-top:16px}
+.auth-panel .auth-google{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;padding:14px 18px;border:1px solid #d8e2ef;border-radius:9px;font-weight:600;font-size:13px;background:#fff;color:#243b59}
+.auth-google svg{width:19px;height:19px;flex-shrink:0}
+.auth-divider{display:flex;align-items:center;gap:15px;color:#7b889c;font-size:11px;margin:24px 0}
+.auth-divider:before,.auth-divider:after{content:'';height:1px;background:var(--border);flex:1}
+.auth-phone{display:flex;border:1px solid #d8e2ef;border-radius:7px;overflow:hidden;align-items:center;background:#fff}
+.auth-country{padding:0 14px;font-size:13px;font-weight:600;color:#536983;border-right:1px solid var(--border)}
+.modal .auth-phone input{border:0;margin:0;border-radius:0;min-width:0;width:100%}
+.auth-code{letter-spacing:.3em;font-size:20px;text-align:center}
+.auth-panel .auth-hint{font-size:11px;line-height:1.7;color:#738196;margin:10px 0 16px}
+.auth-panel [role=alert]{color:#a33434}
+.auth-actions{display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.auth-actions button{font-size:11px;text-decoration:underline;color:var(--blue)}
+.auth-identity{background:#f4f8ff;padding:16px;border:1px solid #dfe9f7;border-radius:9px;margin:18px 0;overflow-wrap:anywhere}
+.auth-identity p{margin:7px 0!important;font-size:12px!important}
+.auth-provider-badge{display:inline-flex;padding:4px 9px;margin:6px 6px 0 0;border-radius:999px;background:#e8f4ec;color:#31784b;font-size:10px}
+.auth-panel fieldset{min-width:0;border:0;padding:0;margin:0}
+.auth-panel .primary{width:100%;justify-content:center}
+.auth-panel .secondary-action{display:inline-flex;align-items:center;gap:6px}

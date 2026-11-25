@@ -3,3 +3,13 @@ dist/
 *.tsbuildinfo
 .DS_Store
 .pnpm-store/
+data/
+.env*
+!.env.example
+.vercel/
+.neon
+.railway/
+*.sqlite
+*.sqlite-*
+firebase-service-account*.json
+*-firebase-adminsdk-*.json

@@ -1,17 +1,154 @@
-import {useState,type Dispatch,type SetStateAction} from 'react';
-import {Stethoscope,ArrowRight,Check,Video,UserRound} from 'lucide-react';
-export const doctors=[
- {id:'ananya',name:'Dr. Ananya Sen',specialty:'General physician',qualification:'MBBS, MD · General Medicine',experience:9,fee:499,languages:'English, Hindi, Bengali',about:'Everyday health concerns, preventive care and general wellness guidance.',initials:'AS'},
- {id:'rohan',name:'Dr. Rohan Mehta',specialty:'Dermatology',qualification:'MBBS, MD · Dermatology',experience:11,fee:699,languages:'English, Hindi',about:'Skin, hair and nail concerns, with a focus on everyday skin health.',initials:'RM'},
- {id:'ishita',name:'Dr. Ishita Das',specialty:'Pediatrics',qualification:'MBBS, MD · Pediatrics',experience:8,fee:599,languages:'English, Bengali',about:'Child health, development and routine care guidance for parents.',initials:'ID'},
- {id:'arjun',name:'Dr. Arjun Rao',specialty:'Cardiology',qualification:'MBBS, MD, DM · Cardiology',experience:14,fee:899,languages:'English, Hindi',about:'Heart health, blood pressure concerns and preventive cardiac care.',initials:'AR'}
-];
-export interface Appointment{id:string;doctorId:string;patient:string;date:string;time:string;fee:number;status:'Booked'|'Cancelled'}
-export function isAppointments(v:unknown):v is Appointment[]{return Array.isArray(v)&&v.every(a=>a&&typeof a.id==='string'&&doctors.some(d=>d.id===a.doctorId)&&typeof a.patient==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(a.date)&&['10:00','11:30','14:00','16:30'].includes(a.time)&&typeof a.fee==='number'&&['Booked','Cancelled'].includes(a.status))}
-export function appointmentDate(date:string){return new Date(`${date}T12:00:00+05:30`).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric',timeZone:'Asia/Kolkata'})}
-function availableDates(){const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Kolkata',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());return Array.from({length:7},(_,i)=>{const d=new Date(`${today}T12:00:00+05:30`);d.setUTCDate(d.getUTCDate()+i+1);return d.toISOString().slice(0,10)})}
-export function Doctors({appointments,setAppointments,patientName,storageError,onProfile}:{appointments:Appointment[];setAppointments:Dispatch<SetStateAction<Appointment[]>>;patientName:string;storageError:boolean;onProfile:()=>void}){
- const[filter,setFilter]=useState('All');const[selected,setSelected]=useState<string|null>(null);const[details,setDetails]=useState<string|null>(null);const[dates]=useState(availableDates);const[date,setDate]=useState(dates[0]);const[time,setTime]=useState('');const[patient,setPatient]=useState(patientName);const[confirmed,setConfirmed]=useState<Appointment|null>(null);const[error,setError]=useState('');
- const doctor=doctors.find(d=>d.id===selected);const slots=['10:00','11:30','14:00','16:30'];const booked=(slot:string)=>appointments.some(a=>a.doctorId===selected&&a.date===date&&a.time===slot&&a.status==='Booked');
- return <div className="commerce doctors"><span className="demo-chip">FICTIONAL DOCTORS · LOCAL DEMO ONLY</span><Stethoscope className="modal-icon"/><h2>Consult doctors</h2><p>Explore sample profiles and reserve a demo video consultation. No real doctor, payment or video call is connected.</p>{storageError&&<p role="alert">Browser storage is unavailable. Appointments will not survive a refresh.</p>}{confirmed?<div className="confirmation"><Check/><h3>Demo appointment booked</h3><p>{doctors.find(d=>d.id===confirmed.doctorId)?.name}<br/>{appointmentDate(confirmed.date)} · {confirmed.time} IST<br/>Patient: {confirmed.patient}<br/>Reference: {confirmed.id}</p><p>No payment collected. No reminder or consultation will occur.</p><button className="primary" onClick={onProfile}>View appointments in profile <ArrowRight size={16}/></button><button className="secondary-action" onClick={()=>{setConfirmed(null);setSelected(null);setTime('')}}>Explore more doctors</button></div>:doctor?<><button className="secondary-action" onClick={()=>{setSelected(null);setTime('');setError('')}}>← All doctors</button><h3>{doctor.name}</h3><p>{doctor.specialty} · Demo fee ₹{doctor.fee}</p><form onSubmit={e=>{e.preventDefault();if(!patient.trim()||!dates.includes(date)||!time||booked(time)){setError('Choose a patient name and an available date and time.');return}const item:Appointment={id:`APT-${crypto.randomUUID().slice(0,8).toUpperCase()}`,doctorId:doctor.id,patient:patient.trim(),date,time,fee:doctor.fee,status:'Booked'};setAppointments(list=>[item,...list]);setConfirmed(item)}}><label>Patient name<input required maxLength={100} pattern=".*\S.*" value={patient} onChange={e=>setPatient(e.target.value)}/></label><label>Appointment date<select value={date} onChange={e=>{setDate(e.target.value);setTime('');setError('')}}>{dates.map(day=><option key={day} value={day}>{appointmentDate(day)}</option>)}</select></label><fieldset className="appointment-slots"><legend>Available times · India Standard Time</legend>{slots.map(slot=><button type="button" key={slot} disabled={booked(slot)} aria-pressed={time===slot} onClick={()=>setTime(slot)}>{slot}{booked(slot)?' · Booked':''}</button>)}</fieldset><p className="slot-note">Sample availability for the next seven days. Times are in IST.</p><label className="confirm-check"><input type="checkbox" required/>I understand this is a local demo booking with no real consultation or payment.</label>{error&&<p role="alert" className="form-message">{error}</p>}<button className="primary" disabled={!time}>Confirm demo appointment <ArrowRight size={16}/></button></form></>:<><div className="filters" aria-label="Filter doctors by specialty">{['All',...new Set(doctors.map(d=>d.specialty))].map(s=><button aria-pressed={filter===s} className={filter===s?'selected':''} key={s} onClick={()=>setFilter(s)}>{s==='All'?'All specialties':s}</button>)}</div><div className="doctor-grid">{doctors.filter(d=>filter==='All'||d.specialty===filter).map(d=><article className="doctor-card" key={d.id}><div className="doctor-avatar" aria-hidden="true"><UserRound/><span>{d.initials}</span></div><div><span className="doctor-specialty">{d.specialty}</span><h3>{d.name}</h3><p>{d.experience} years of sample experience<br/>{d.languages}</p></div><button className="secondary-action" aria-expanded={details===d.id} onClick={()=>setDetails(details===d.id?null:d.id)}>{details===d.id?'Hide profile':'View profile'}</button>{details===d.id&&<div className="doctor-bio"><b>{d.qualification}</b><p>{d.about}</p><small>Fictional profile for demonstration; credentials are illustrative.</small></div>}<div className="doctor-fee"><span><Video size={14}/> Demo video visit</span><b>₹{d.fee}</b></div><button className="primary" aria-label={`Book appointment with ${d.name}`} onClick={()=>{setSelected(d.id);setTime('');setError('')}}>Book appointment <ArrowRight size={15}/></button></article>)}</div></>}</div>
+import {useEffect, useRef, useState, type FormEvent} from 'react';
+import {Stethoscope, ArrowRight, Check, Video, UserRound} from 'lucide-react';
+import type {BackendState, BackendActions, Appointment} from '@/lib/types';
+
+export function appointmentDate(date: string) {
+  return new Date(`${date}T12:00:00+05:30`).toLocaleDateString('en-IN', {
+    day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Kolkata',
+  });
+}
+
+interface Props {
+  state: BackendState;
+  busy: boolean;
+  actions: BackendActions;
+  onProfile: () => void;
+}
+
+export function Doctors({state, busy, actions, onProfile}: Props) {
+  const {doctors, availability, profile} = state;
+  const [filter, setFilter] = useState('All');
+  const [selected, setSelected] = useState<string | null>(null);
+  const [details, setDetails] = useState<string | null>(null);
+  const [date, setDate] = useState(availability.dates[0] || '');
+  const [time, setTime] = useState('');
+  const [patient, setPatient] = useState(profile.name);
+  const [confirmed, setConfirmed] = useState<Appointment | null>(null);
+  const [error, setError] = useState('');
+  const [pending, setPending] = useState(false);
+  const mutationInProgress = useRef(false);
+  const disabled = busy || pending;
+  const doctor = doctors.find(item => item.id === selected);
+  const selectedDate = availability.dates.includes(date) ? date : availability.dates[0] || '';
+  const booked = (slot: string) => availability.booked.some(item => item.doctorId === selected && item.date === selectedDate && item.time === slot);
+
+  useEffect(() => {
+    let active = true;
+    void actions.refresh().catch(cause => {
+      if (active) setError(cause instanceof Error ? cause.message : 'Could not load available appointments. Please try again.');
+    });
+    return () => {active = false;};
+  }, [actions.refresh]);
+
+  async function book(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (mutationInProgress.current || busy || !doctor) return;
+    if (!patient.trim() || !selectedDate || !time || booked(time)) {
+      setError('Choose a patient name and an available date and time.');
+      return;
+    }
+    mutationInProgress.current = true;
+    setPending(true);
+    setError('');
+    try {
+      const appointment = await actions.bookAppointment({doctorId: doctor.id, patient: patient.trim(), date: selectedDate, time});
+      setConfirmed(appointment);
+    } catch (cause) {
+      const message = cause instanceof Error ? cause.message : 'Could not book this appointment. Please try again.';
+      try {await actions.refresh();} catch { /* Keep the original booking error visible. */ }
+      setError(message);
+      setTime('');
+    } finally {
+      mutationInProgress.current = false;
+      setPending(false);
+    }
+  }
+
+  function selectDoctor(id: string) {
+    setSelected(id);
+    setTime('');
+    setError('');
+    void actions.refresh().catch(cause => setError(cause instanceof Error ? cause.message : 'Could not refresh availability.'));
+  }
+
+  return (
+    <div className="commerce doctors" aria-busy={disabled}>
+      <span className="demo-chip">FICTIONAL DOCTORS · DEMO BOOKINGS</span>
+      <Stethoscope className="modal-icon" />
+      <h2>Consult doctors</h2>
+      <p>Explore sample profiles and reserve a saved demo appointment. No real doctor, payment or video call is connected.</p>
+      {error && <p role="alert" className="form-message">{error}</p>}
+      {confirmed ? (
+        <div className="confirmation">
+          <Check /><h3>Demo appointment booked</h3>
+          <p>
+            {doctors.find(item => item.id === confirmed.doctorId)?.name}<br />
+            {appointmentDate(confirmed.date)} · {confirmed.time} IST<br />
+            Patient: {confirmed.patient}<br />Reference: {confirmed.id}
+          </p>
+          <p>Your appointment is saved in your profile. No payment was collected, and no reminder or consultation will occur.</p>
+          <button className="primary" onClick={onProfile}>View appointments in profile <ArrowRight size={16} /></button>
+          <button className="secondary-action" onClick={() => {setConfirmed(null); setSelected(null); setTime('');}}>Explore more doctors</button>
+        </div>
+      ) : doctor ? (
+        <>
+          <button disabled={disabled} className="secondary-action" onClick={() => {setSelected(null); setTime(''); setError('');}}>← All doctors</button>
+          <h3>{doctor.name}</h3><p>{doctor.specialty} · Demo fee ₹{doctor.fee}</p>
+          <form onSubmit={book}>
+            <fieldset className="form-fields" disabled={disabled}>
+              <label>Patient name<input required maxLength={100} pattern=".*\S.*" value={patient} onChange={event => setPatient(event.target.value)} /></label>
+              <label>
+                Appointment date
+                <select required value={selectedDate} onChange={event => {setDate(event.target.value); setTime(''); setError('');}}>
+                  {availability.dates.map(day => <option key={day} value={day}>{appointmentDate(day)}</option>)}
+                </select>
+              </label>
+              <fieldset className="appointment-slots">
+                <legend>Available times · India Standard Time</legend>
+                {availability.times.map(slot => (
+                  <button type="button" key={slot} disabled={booked(slot)} aria-pressed={time === slot} onClick={() => setTime(slot)}>
+                    {slot}{booked(slot) ? ' · Booked' : ''}
+                  </button>
+                ))}
+              </fieldset>
+              <p className="slot-note">Availability for the next seven days. Times are in IST.</p>
+              <label className="confirm-check"><input type="checkbox" required />I understand this is a demo booking with no real consultation or payment.</label>
+              <button className="primary" disabled={!time || !selectedDate || booked(time)}>
+                {pending ? 'Booking…' : 'Confirm demo appointment'} <ArrowRight size={16} />
+              </button>
+            </fieldset>
+          </form>
+        </>
+      ) : (
+        <>
+          <div className="filters" aria-label="Filter doctors by specialty">
+            {['All', ...new Set(doctors.map(item => item.specialty))].map(specialty => (
+              <button aria-pressed={filter === specialty} className={filter === specialty ? 'selected' : ''} key={specialty} onClick={() => setFilter(specialty)}>
+                {specialty === 'All' ? 'All specialties' : specialty}
+              </button>
+            ))}
+          </div>
+          <div className="doctor-grid">
+            {doctors.filter(item => filter === 'All' || item.specialty === filter).map(item => (
+              <article className="doctor-card" key={item.id}>
+                <div className="doctor-avatar" aria-hidden="true"><UserRound /><span>{item.initials}</span></div>
+                <div>
+                  <span className="doctor-specialty">{item.specialty}</span><h3>{item.name}</h3>
+                  <p>{item.experience} years of sample experience<br />{item.languages}</p>
+                </div>
+                <button className="secondary-action" aria-expanded={details === item.id} onClick={() => setDetails(details === item.id ? null : item.id)}>
+                  {details === item.id ? 'Hide profile' : 'View profile'}
+                </button>
+                {details === item.id && <div className="doctor-bio"><b>{item.qualification}</b><p>{item.about}</p><small>Fictional profile for demonstration; credentials are illustrative.</small></div>}
+                <div className="doctor-fee"><span><Video size={14} /> Demo video visit</span><b>₹{item.fee}</b></div>
+                <button disabled={disabled} className="primary" aria-label={`Book appointment with ${item.name}`} onClick={() => selectDoctor(item.id)}>
+                  Book appointment <ArrowRight size={15} />
+                </button>
+              </article>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
 }
